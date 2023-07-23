@@ -17,6 +17,7 @@ ra = Style.RESET_ALL
 
 @dataclass
 class State:
+    one: bool = False
     mistakes: float = 0
     questions: int = 0
 
@@ -47,15 +48,18 @@ def ask(state, card):
         else:
             answers[answer] = False
     len_answers = len(answers)
+    one = state.one or len_answers == 1
 
     ratio = -1
     while answers:
         if ratio != -1:
             print(Fore.YELLOW + f"best ratio: {ratio:3d}%" + ra)
         open = len_answers - len(answers)
-        given = input(
-            Fore.BLUE + f"\nanswer {open:2d}/{len_answers:2d} (? help): " + ra
-        )
+        if one:
+            prompt = f"\nanswer [{len_answers}] (? help): "
+        else:
+            prompt = f"\nanswer [{open}/{len_answers}] (? help): "
+        given = input(Fore.BLUE + prompt + ra)
         readline.add_history(given)
         given = given.strip()
         show_hint = given.startswith("!")
@@ -71,13 +75,16 @@ def ask(state, card):
             continue
         ratio = -1
         if given in answers:
+            state.questions += 1
+            if one:
+                print(Fore.GREEN + "correct!" + ra)
+                break
             if has_primary:
                 kind = "primary" if answers[given] else "secondary"
                 print(Fore.GREEN + f"correct! ({kind})" + ra)
             else:
                 print(Fore.GREEN + "correct!" + ra)
             answers.pop(given)
-            state.questions += 1
             continue
         best = ""
         last_ratio = 0
@@ -106,9 +113,9 @@ def ask(state, card):
         state.mistakes += (1.0 - (ratio / 100)) * factor
 
 
-def train(training, shuffle=True):
+def train(training, shuffle=True, one=False):
     try:
-        state = State()
+        state = State(one)
         if shuffle:
             random.shuffle(training)
         for card in training:
@@ -140,7 +147,8 @@ def train(training, shuffle=True):
     help="Shuffle the cards",
 )
 @click.option("--join/--no-join", "-j/-nj", default=True, help="Join all trainings")
-def run(trainings, shuffle, join):
+@click.option("--one/--no-one", "-o/-no", default=False, help="One answer is enough")
+def run(trainings, shuffle, join, one):
     if not trainings:
         raise click.BadParameter("Please set at least one training-file.")
     data = []
@@ -153,7 +161,7 @@ def run(trainings, shuffle, join):
         training = []
         for data_set in data:
             training.extend(data_set["card"])
-        train(training, shuffle)
+        train(training, shuffle, one)
     else:
         for training in data:
-            train(training["card"], shuffle)
+            train(training["card"], shuffle, one)
