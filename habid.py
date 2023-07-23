@@ -2,6 +2,7 @@ import math
 import random
 import readline
 import warnings
+from functools import lru_cache
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 
@@ -31,6 +32,7 @@ def help():
     )
 
 
+@lru_cache
 def lev_ratio(a, b):
     m = SequenceMatcher(None, a, b)
     return int(round(100 * m.ratio()))
