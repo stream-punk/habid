@@ -1,18 +1,24 @@
+import math
+import random
+import readline
 import warnings
-
-warnings.filterwarnings("ignore")
-from thefuzz import fuzz
-
-warnings.filterwarnings("default")
+from dataclasses import dataclass
 
 import click
 import toml
-import random
-import readline
-from colorama import init, Fore, Style
-from dataclasses import dataclass
+from colorama import Fore, Style, init
+
+
+def import_fuzz():
+    global fuzz
+    warnings.filterwarnings("ignore")
+    from thefuzz import fuzz
+
+    warnings.filterwarnings("default")
+
 
 ra = Style.RESET_ALL
+import_fuzz()
 
 
 @dataclass
@@ -87,28 +93,33 @@ def ask(state, card):
             answers.pop(given)
             continue
         best = ""
-        last_ratio = 0
+        last_ratio = -1
         for answer in answers:
             ratio = max(ratio, fuzz.ratio(given, answer))
             if last_ratio != ratio:
                 best = answer
             last_ratio = ratio
         factor = 1.0
-        if best and best.lower() == given.lower():
+        if best.lower() == given.lower():
             print(Fore.GREEN + "case mismatch only" + ra)
             factor = 0.1
-        if given and best and show_hint:
+        if show_hint:
             if full_hint:
                 hint = best
             else:
                 factor = 0.5
-                half = len(best) // 2
-                if random.random() > 0.5:
-                    hint = best[half:]
-                    hint = f"...{hint}"
+                len_best = len(best)
+                half = len_best // 2
+                coin = random.random() > 0.5
+                if coin:
+                    part = best[half:]
                 else:
-                    hint = best[:half]
-                    hint = f"{hint}.."
+                    part = best[: half + 1]
+                rest = "." * (len_best - len(part))
+                if coin:
+                    hint = f"{rest}{part}"
+                else:
+                    hint = f"{part}{rest}"
             print(Fore.YELLOW + f"hint: {hint}" + ra)
         state.mistakes += (1.0 - (ratio / 100)) * factor
 
