@@ -66,7 +66,6 @@ def ask(state, card):
         else:
             prompt = f"\nanswer [{open}/{len_answers}] (? help): "
         given = input(Fore.BLUE + prompt + ra)
-        readline.add_history(given)
         given = given.strip()
         show_hint = given.startswith("!")
         full_hint = False
@@ -82,6 +81,7 @@ def ask(state, card):
         if given == "?":
             help()
             continue
+        readline.add_history(given)
         ratio = -1
         if given in answers:
             state.questions += 1
@@ -173,6 +173,7 @@ def run(trainings, shuffle, join, one):
             raise click.BadParameter(f"{training} is not a toml-file")
         data.append(toml.load(training))
     init()
+    readline.set_auto_history(False)
     if join:
         training = []
         for data_set in data:
