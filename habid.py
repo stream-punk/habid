@@ -1,14 +1,17 @@
-import math
 import random
 import readline
-import warnings
-from functools import lru_cache
 from dataclasses import dataclass
 from difflib import SequenceMatcher
+from functools import lru_cache
 
 import click
 import toml
 from colorama import Fore, Style, init
+
+try:
+    import gnureadline as readline
+except ImportError:
+    import readline
 
 ra = Style.RESET_ALL
 
