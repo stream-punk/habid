@@ -4,4 +4,4 @@ answers = ["Schweden", "Schweiz"]
 
 [[card]]
 prompt = "Was ist der 1. August in der Schweiz?"
-answers = ["Feiertag"]
+answers = ["Feiertag", "|Bundesfeier"]

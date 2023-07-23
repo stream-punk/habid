@@ -35,8 +35,19 @@ def help():
 
 def ask(state, card):
     print(Fore.CYAN + card["prompt"] + ra)
-    answers = set(card["answers"])
+    answer_list = list(card["answers"])
+    answers = dict()
+    has_primary = False
+    for answer in answer_list:
+        answer = answer.strip()
+        if answer.startswith("|"):
+            has_primary = True
+            answer = answer[1:].strip()
+            answers[answer] = True
+        else:
+            answers[answer] = False
     len_answers = len(answers)
+
     ratio = -1
     while answers:
         if ratio != -1:
@@ -60,8 +71,12 @@ def ask(state, card):
             continue
         ratio = -1
         if given in answers:
-            print(Fore.GREEN + "correct!" + ra)
-            answers.remove(given)
+            if has_primary:
+                kind = "primary" if answers[given] else "secondary"
+                print(Fore.GREEN + f"correct! ({kind})" + ra)
+            else:
+                print(Fore.GREEN + "correct!" + ra)
+            answers.pop(given)
             state.questions += 1
             continue
         best = ""
