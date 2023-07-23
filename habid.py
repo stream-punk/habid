@@ -93,15 +93,15 @@ def ask(state, card):
             continue
         best = ""
         last_ratio = -1
+        factor = 1.0
         for answer in answers:
+            if answer.lower() == given.lower():
+                print(Fore.GREEN + "case mismatch only" + ra)
+                factor = 0.1
             ratio = max(ratio, lev_ratio(given, answer))
             if last_ratio != ratio:
                 best = answer
             last_ratio = ratio
-        factor = 1.0
-        if best.lower() == given.lower():
-            print(Fore.GREEN + "case mismatch only" + ra)
-            factor = 0.1
         if show_hint:
             if full_hint:
                 hint = best
