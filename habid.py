@@ -177,7 +177,7 @@ def run(trainings, shuffle, join, one):
         data.append(toml.load(training))
     init()
     readline.set_auto_history(False)
-    print(Fore.RED + "Say prompt and answer out loud." + ra)
+    print(Fore.RED + "pro-tio: say prompt and answer out loud." + ra)
     if join:
         training = []
         for data_set in data:
