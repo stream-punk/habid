@@ -1,4 +1,5 @@
 import random
+import unicodedata
 import readline
 from dataclasses import dataclass
 from difflib import SequenceMatcher
@@ -42,6 +43,10 @@ def lev_ratio(a, b):
     return int(round(100 * m.ratio()))
 
 
+def normalize(input, normalization="NFC"):
+    return unicodedata.normalize(normalization, input)
+
+
 def ask(state, card):
     print()
     print(Fore.CYAN + card["prompt"] + ra)
@@ -49,7 +54,7 @@ def ask(state, card):
     answers = dict()
     has_primary = False
     for answer in answer_list:
-        answer = answer.strip()
+        answer = normalize(answer.strip())
         if answer.startswith("|"):
             has_primary = True
             answer = answer[1:].strip()
@@ -69,7 +74,7 @@ def ask(state, card):
         else:
             prompt = f"\nanswer [{open}/{len_answers}] (? help): "
         given = input(Fore.BLUE + prompt + ra)
-        given = given.strip()
+        given = normalize(given.strip())
         show_hint = given.startswith("!")
         full_hint = False
         if show_hint:
