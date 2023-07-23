@@ -1,0 +1,7 @@
+[[card]]
+prompt = "Länder die mit 'Schw' anfangen?"
+answers = ["Schweden", "Schweiz"]
+
+[[card]]
+prompt = "Was ist der 1. August in der Schweiz?"
+answers = ["Feiertag"]
