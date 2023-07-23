@@ -3,22 +3,13 @@ import random
 import readline
 import warnings
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 
 import click
 import toml
 from colorama import Fore, Style, init
 
-
-def import_fuzz():
-    global fuzz
-    warnings.filterwarnings("ignore")
-    from thefuzz import fuzz
-
-    warnings.filterwarnings("default")
-
-
 ra = Style.RESET_ALL
-import_fuzz()
 
 
 @dataclass
@@ -40,7 +31,13 @@ def help():
     )
 
 
+def lev_ratio(a, b):
+    m = SequenceMatcher(None, a, b)
+    return int(round(100 * m.ratio()))
+
+
 def ask(state, card):
+    print()
     print(Fore.CYAN + card["prompt"] + ra)
     answer_list = list(card["answers"])
     answers = dict()
@@ -95,7 +92,7 @@ def ask(state, card):
         best = ""
         last_ratio = -1
         for answer in answers:
-            ratio = max(ratio, fuzz.ratio(given, answer))
+            ratio = max(ratio, lev_ratio(given, answer))
             if last_ratio != ratio:
                 best = answer
             last_ratio = ratio
