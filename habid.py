@@ -32,7 +32,7 @@ def help():
     )
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def lev_ratio(a, b):
     m = SequenceMatcher(None, a, b)
     return int(round(100 * m.ratio()))
