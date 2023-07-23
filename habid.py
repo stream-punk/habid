@@ -24,8 +24,9 @@ def help():
     print(
         Fore.YELLOW
         + """
-- add a ! in front of your guess to get a hint
-- add a !! in front of your guess to get a full hint
+- add a ! in front of your guess to get a small hint
+- add a !! in front of your guess to get a big hint
+- add a !!! in front of your guess to get a full hint
 - press ctrl-d to quit
 """.strip()
         + ra
@@ -70,9 +71,12 @@ def ask(state, card):
         show_hint = given.startswith("!")
         full_hint = False
         if show_hint:
-            full_hint = given.startswith("!!")
+            big_hint = given.startswith("!!")
+            full_hint = given.startswith("!!!")
             start = 1
             if full_hint:
+                start = 3
+            if big_hint:
                 start = 2
             given = given[start:]
         if given == "?":
@@ -108,19 +112,19 @@ def ask(state, card):
             if full_hint:
                 hint = best
             else:
-                factor = 0.5
                 len_best = len(best)
                 half = len_best // 2
-                coin = random.random() > 0.5
-                if coin:
-                    part = best[half:]
-                else:
+                if big_hint:
                     part = best[: half + 1]
-                rest = "." * (len_best - len(part))
-                if coin:
-                    hint = f"{rest}{part}"
+                    factor = 0.5
                 else:
+                    part = best[half:]
+                    factor = 0.2
+                rest = "." * (len_best - len(part))
+                if big_hint:
                     hint = f"{part}{rest}"
+                else:
+                    hint = f"{rest}{part}"
             print(Fore.YELLOW + f"hint: {hint}" + ra)
         state.mistakes += (1.0 - (ratio / 100)) * factor
 
