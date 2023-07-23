@@ -26,6 +26,7 @@ def help():
         Fore.YELLOW
         + """
 - add a ! in front of your guess to get a hint
+- add a !! in front of your guess to get a full hint
 - press ctrl-d to quit
 """.strip()
         + ra
@@ -41,15 +42,22 @@ def ask(state, card):
         if ratio != -1:
             print(Fore.YELLOW + f"best ratio: {ratio:3d}%" + ra)
         open = len_answers - len(answers)
-        given = input(Fore.BLUE + f"answer {open:2d}/{len_answers:2d} (? help): " + ra)
+        given = input(
+            Fore.BLUE + f"\nanswer {open:2d}/{len_answers:2d} (? help): " + ra
+        )
+        readline.add_history(given)
         given = given.strip()
         show_hint = given.startswith("!")
+        full_hint = False
         if show_hint:
-            given = given[1:]
+            full_hint = given.startswith("!!")
+            start = 1
+            if full_hint:
+                start = 2
+            given = given[start:]
         if given == "?":
             help()
             continue
-        readline.add_history(given)
         ratio = -1
         if given in answers:
             print(Fore.GREEN + "correct!" + ra)
@@ -63,16 +71,30 @@ def ask(state, card):
             if last_ratio != ratio:
                 best = answer
             last_ratio = ratio
-        if show_hint:
-            print(Fore.YELLOW + f"hint: {best}" + ra)
-        state.mistakes += 1.0 - (ratio / 100)
+        factor = 1.0
+        if best and best.lower() == given.lower():
+            print(Fore.GREEN + "case mismatch only" + ra)
+            factor = 0.1
+        if given and best and show_hint:
+            if full_hint:
+                hint = best
+            else:
+                factor = 0.5
+                half = len(best) // 2
+                if random.random() > 0.5:
+                    hint = best[half:]
+                    hint = f"...{hint}"
+                else:
+                    hint = best[:half]
+                    hint = f"{hint}.."
+            print(Fore.YELLOW + f"hint: {hint}" + ra)
+        state.mistakes += (1.0 - (ratio / 100)) * factor
 
 
 def train(training, shuffle=True):
     try:
         state = State()
         if shuffle:
-            print(shuffle)
             random.shuffle(training)
         for card in training:
             ask(state, card)
