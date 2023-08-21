@@ -1,6 +1,6 @@
 import random
-import unicodedata
 import readline
+import unicodedata
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from functools import lru_cache
@@ -170,9 +170,12 @@ def train(training, shuffle=True, one=False):
     default=True,
     help="Shuffle the cards",
 )
+@click.option("--count", "-c", default=0, type=int, help="Number of questions")
 @click.option("--join/--no-join", "-j/-nj", default=True, help="Join all trainings")
 @click.option("--one/--no-one", "-o/-no", default=False, help="One answer is enough")
-def run(trainings, shuffle, join, one):
+def run(trainings, shuffle, join, one, count):
+    if count < 1:
+        count = None
     if not trainings:
         raise click.BadParameter("Please set at least one training-file.")
     data = []
@@ -187,7 +190,9 @@ def run(trainings, shuffle, join, one):
         training = []
         for data_set in data:
             training.extend(data_set["card"])
+        training = training[:count]
         train(training, shuffle, one)
     else:
         for training in data:
-            train(training["card"], shuffle, one)
+            training = training["card"][:count]
+            train(training, shuffle, one)
